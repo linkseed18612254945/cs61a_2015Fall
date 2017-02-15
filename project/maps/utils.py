@@ -29,7 +29,7 @@ def key_of_min_value(d):
     'c'
     """
     # BEGIN Question 0
-    pass
+    return min([i for i in d], key=lambda x: d[x])
     # END Question 0
 
 def zip(*sequences):

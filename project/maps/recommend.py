@@ -5,6 +5,7 @@ from data import ALL_RESTAURANTS, CATEGORIES, USER_FILES, load_user_file
 from ucb import main, trace, interact
 from utils import distance, mean, zip, enumerate, sample
 from visualize import draw_map
+import numpy as np
 
 ##################################
 # Phase 2: Unsupervised Learning #
@@ -19,7 +20,7 @@ def find_closest(location, centroids):
     [2.0, 3.0]
     """
     # BEGIN Question 3
-    "*** REPLACE THIS LINE ***"
+    return min(centroids, key=lambda point: distance(location, point))
     # END Question 3
 
 
@@ -48,14 +49,16 @@ def group_by_centroid(restaurants, centroids):
     restaurants closest to the same centroid.
     """
     # BEGIN Question 4
-    "*** REPLACE THIS LINE ***"
+    restaurant_center_group = [[find_closest(restaurant_location(restaurant), centroids), restaurant] for restaurant in restaurants]
+    return group_by_first(restaurant_center_group)
     # END Question 4
 
 
 def find_centroid(cluster):
     """Return the centroid of the locations of the restaurants in cluster."""
     # BEGIN Question 5
-    "*** REPLACE THIS LINE ***"
+    positions = np.array([restaurant_location(restaurant) for restaurant in cluster]).transpose()
+    return [mean(positions[0]), mean(positions[1])]
     # END Question 5
 
 
@@ -69,7 +72,8 @@ def k_means(restaurants, k, max_updates=100):
     while old_centroids != centroids and n < max_updates:
         old_centroids = centroids
         # BEGIN Question 6
-        "*** REPLACE THIS LINE ***"
+        clusters = group_by_centroid(restaurants, old_centroids)
+        centroids = [find_centroid(cluster) for cluster in clusters]
         # END Question 6
         n += 1
     return centroids
@@ -92,8 +96,14 @@ def find_predictor(user, restaurants, feature_fn):
     ys = [reviews_by_user[restaurant_name(r)] for r in restaurants]
 
     # BEGIN Question 7
-    "*** REPLACE THIS LINE ***"
-    b, a, r_squared = 0, 0, 0  # REPLACE THIS LINE WITH YOUR SOLUTION
+    sxx = sum([(x - mean(xs)) ** 2 for x in xs])
+    syy = sum([(y - mean(ys)) ** 2 for y in ys])
+    sxy = 0
+    for x, y in zip(xs, ys):
+        sxy += (x - mean(xs)) * (y - mean(ys))
+    b = sxy / sxx
+    a = mean(ys) - b * mean(xs)
+    r_squared = (sxy ** 2) / (sxx * syy)
     # END Question 7
 
     def predictor(restaurant):
@@ -113,7 +123,8 @@ def best_predictor(user, restaurants, feature_fns):
     """
     reviewed = user_reviewed_restaurants(user, restaurants)
     # BEGIN Question 8
-    "*** REPLACE THIS LINE ***"
+    predictor_dict = dict([find_predictor(user, reviewed, ffn) for ffn in feature_fns])
+    return max(predictor_dict, key=lambda predictor: predictor_dict[predictor])
     # END Question 8
 
 
@@ -129,7 +140,13 @@ def rate_all(user, restaurants, feature_fns):
     predictor = best_predictor(user, ALL_RESTAURANTS, feature_fns)
     reviewed = user_reviewed_restaurants(user, restaurants)
     # BEGIN Question 9
-    "*** REPLACE THIS LINE ***"
+    rate_dict = {}
+    for r in restaurants:
+        if r in reviewed:
+            rate_dict[restaurant_name(r)] = restaurant_num_ratings(r)
+        else:
+            rate_dict[restaurant_name(r)] = predictor(r)
+    return rate_dict
     # END Question 9
 
 
@@ -141,7 +158,7 @@ def search(query, restaurants):
     restaurants -- A sequence of restaurants
     """
     # BEGIN Question 10
-    "*** REPLACE THIS LINE ***"
+    return [r for r in restaurants if query in restaurant_categories(r)]
     # END Question 10
 
 
@@ -208,3 +225,4 @@ def main(*args):
     else:
         centroids = [restaurant_location(r) for r in restaurants]
     draw_map(centroids, restaurants, ratings)
+
