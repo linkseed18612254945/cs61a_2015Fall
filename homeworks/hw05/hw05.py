@@ -75,15 +75,15 @@ def end(s):
 def weight(size):
     """Construct a weight of some size."""
     assert size > 0
-    "*** YOUR CODE HERE ***"
+    return tree(size)
 
 def size(w):
     """Select the size of a weight."""
-    "*** YOUR CODE HERE ***"
+    return root(w)
 
 def is_weight(w):
     """Whether w is a weight, not a mobile."""
-    "*** YOUR CODE HERE ***"
+    return is_leaf(w)
 
 def examples():
     t = mobile(side(1, weight(2)),
@@ -170,7 +170,17 @@ def with_totals(m):
               3
                 2
     """
-    "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        return m
+    else:
+        return tree(total_weight(m), [tree(length(s), [with_totals(end(s))]) for s in sides(m)])
+
+def same_element(lst):
+    static = lst[0]
+    for i in lst:
+        if i != static:
+            return False
+    return True
 
 def balanced(m):
     """Return whether m is balanced.
@@ -188,11 +198,18 @@ def balanced(m):
     >>> balanced(mobile(side(1, w), side(1, v)))
     False
     """
-    "*** YOUR CODE HERE ***"
+    if is_weight(m):
+        return True
+    elif same_element([length(s) * total_weight(end(s)) for s in sides(m)]):
+        return all([balanced(end(s)) for s in sides(m)])
+    else:
+        return False
+
 
 ############
 # Mutation #
 ############
+incorrect_password_lst = []
 
 def make_withdraw(balance, password):
     """Return a password-protected withdraw function.
@@ -217,8 +234,20 @@ def make_withdraw(balance, password):
     >>> w(10, 'l33t')
     "Your account is locked. Attempts: ['hwat', 'a', 'n00b']"
     """
-    "*** YOUR CODE HERE ***"
 
+    def with_draw(money, pwd):
+        nonlocal balance
+        if len(incorrect_password_lst) >= 3:
+            return 'Your account is locked. Attempts: ' + str(incorrect_password_lst)
+        elif pwd != password:
+            incorrect_password_lst.append(pwd)
+            return 'Incorrect password'
+        elif money > balance:
+            return 'Insufficient funds'
+        else:
+            balance -= money
+            return balance
+    return with_draw
 
 def make_joint(withdraw, old_password, new_password):
     """Return a password-protected withdraw function that has joint access to
@@ -258,7 +287,21 @@ def make_joint(withdraw, old_password, new_password):
     >>> make_joint(w, 'hax0r', 'hello')
     "Your account is locked. Attempts: ['my', 'secret', 'password']"
     """
-    "*** YOUR CODE HERE ***"
+    def joint(amount, password):
+        if password in passwords:
+            password = passwords[0]
+        return withdraw(amount, password)
+
+    check_password = withdraw(0, old_password)
+    if type(check_password) != int:
+        return check_password
+    else:
+        if type(old_password) != list:
+            passwords = [old_password, new_password]
+        else:
+            passwords = old_password.append(new_password)
+    return joint
+
 
 
 ###########
@@ -290,7 +333,39 @@ class VendingMachine:
     >>> v.deposit(15)
     'Machine is out of stock. Here is your $15.'
     """
-    "*** YOUR CODE HERE ***"
+    def __init__(self, product, price):
+        self.product = product
+        self.stock = 0
+        self.price = price
+        self.balance = 0
+
+    def deposit(self, amount):
+        if self.stock == 0:
+            return 'Machine is out of stock. Here is your $' + str(amount) + '.'
+        else:
+            self.balance += amount
+            return 'Current balance: $' + str(self.balance)
+
+    def restock(self, products):
+        self.stock += products
+        return 'Current ' + self.product + ' stock: ' + str(self.stock)
+
+    def vend(self):
+        if self.stock == 0:
+            return 'Machine is out of stock.'
+        if self.balance < self.price:
+            return 'You must deposit $' + str(self.price - self.balance) + ' more.'
+        else:
+            self.stock -= 1
+            change = self.balance - self.price
+            if change == 0:
+                self.balance = 0
+                return 'Here is your ' + self.product + '.'
+            else:
+                self.balance = 0
+                return 'Here is your ' + self.product + ' and $' + str(change) + ' change.'
+
+
 
 
 class MissManners:
@@ -324,7 +399,20 @@ class MissManners:
     >>> really_fussy.ask('please ask', 'please deposit', 10)
     'Current balance: $10'
     """
-    "*** YOUR CODE HERE ***"
+    def __init__(self, v):
+        self.product = v
+
+    def ask(self, sentence, *args):
+        head = sentence[:sentence.find(' ')]
+        order = sentence[sentence.find(' ') + 1:]
+        if head != 'please':
+            return 'You must learn to say please first.'
+        elif hasattr(self.product, order):
+            return getattr(self.product, order)(*args)
+        else:
+            return 'Thanks for asking, but I know not how to {0}.'.format(order)
+
+
 
 
 #############
