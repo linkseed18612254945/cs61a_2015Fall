@@ -1,6 +1,7 @@
-from math import pi, sqrt, pow
-import math
 from  math import gcd
+from math import sqrt
+
+
 def luhn_digit(n):
     double_n = n * 2
     if double_n > 9:
@@ -47,6 +48,7 @@ def f_then_g(f, g, n):
         f(n)
         g(n)
 
+
 shrink = lambda n: f_then_g(print, shrink, n // 10)
 grow = lambda n: f_then_g(grow, print, n // 10)
 
@@ -55,9 +57,7 @@ def inverse_cascade(n):
     grow(n)
     print(n)
     shrink(n)
-
-
-
+    sum_square_u
 
 
 def count_partitions(n, m):
@@ -72,13 +72,16 @@ def trace_simple(fn):
     def traced(x):
         print('Calling', fn, 'on argument', x)
         return fn(x)
+
     return traced
 
 
 def double(fn):
     def doubled(x):
         return fn(x) * 2
+
     return doubled
+
 
 @double
 def sum_square_up_to(n):
@@ -98,6 +101,7 @@ def sum_square_up_to_recursion(n):
 def square(n):
     return n * n
 
+
 ########### Data Abstraction ##############
 
 # Constructor and selectors
@@ -105,16 +109,19 @@ def square(n):
 
 def rational(n, d):
     """ Construct the rational number"""
+
     def select(name):
         if name == 'n':
             return n
         if name == 'd':
             return d
+
     return select
 
 
 def numer(x):
     return x('n')
+
 
 def denom(x):
     return x('d')
@@ -127,8 +134,10 @@ def tree(root, branches=[]):
         assert is_tree(branch)
     return [root] + list(branches)
 
+
 def root(tree):
     return tree[0]
+
 
 def branches(tree):
     return tree[1:]
@@ -163,6 +172,7 @@ def count_leaves(tree):
         branch_counts = [count_leaves(b) for b in branches(tree)]
         return sum(branch_counts)
 
+
 def leaves(tree):
     if is_leaf(tree):
         return tree
@@ -181,10 +191,13 @@ def partition_tree(n, m):
         right = partition_tree(n, m - 1)
         return tree(m, [left, right])
 
+
 def make_withdraw(balance):
     def withdraw(money):
         return balance - money
+
     return withdraw
+
 
 class Account:
     interest = 0.02
@@ -203,6 +216,7 @@ class Account:
         self.balance -= amount
         return self.balance
 
+
 class CheckingAccount(Account):
     interest = 0.01
     withdraw_fee = 1
@@ -210,19 +224,23 @@ class CheckingAccount(Account):
     def withdraw(self, amount):
         return Account.withdraw(self, amount + self.withdraw_fee)
 
+
 class SavingAccount(Account):
     deposit_fee = 2
 
     def deposit(self, amount):
         return Account.deposit(self, amount - self.deposit_fee)
 
+
 class AsSeenOnTVAccount(SavingAccount, CheckingAccount):
     def __init__(self, holder):
         self.holder = holder
         self.balance = 1
 
+
 class Bank:
     """ Bank has counts"""
+
     def __init__(self):
         self.accounts = []
 
@@ -236,8 +254,8 @@ class Bank:
         for account in self.accounts:
             account.deposit(account.balance * account.interest)
 
-class Ratio:
 
+class Ratio:
     def __init__(self, n, d):
         self.gcd = gcd(n, d)
         self._n = n // self.gcd
@@ -254,8 +272,6 @@ class Ratio:
     @property
     def denumer(self):
         return self._d * self.gcd
-
-
 
     def __repr__(self):
         return 'Ratio({0}, {1})'.format(self._n, self._d)
@@ -277,6 +293,7 @@ class Ratio:
 
     def __float__(self):
         return self._n / self._d
+
     __radd__ = __add__
 
 
@@ -292,7 +309,7 @@ class Link:
         if i == 0:
             return self.value
         else:
-            return self.rest[i-1]
+            return self.rest[i - 1]
 
     def __len__(self):
         return 1 + len(self.rest)
@@ -315,17 +332,20 @@ class Link:
 
 odd = lambda x: x % 2 == 1
 
+
 def extend(s, t):
     if s == Link.empty:
         return t
     else:
         return Link(s.value, extend(s.rest, t))
 
+
 def map_link(f, s):
     if s is Link.empty:
         return s
     else:
         return Link(f(s.value), map_link(f, s.rest))
+
 
 def filter_link(f, s):
     if s is Link.empty:
@@ -334,6 +354,7 @@ def filter_link(f, s):
         return Link(s.value, filter_link(f, s.rest))
     else:
         return filter_link(f, s.rest)
+
 
 def join_link(s, separator):
     if s is Link.empty:
@@ -348,6 +369,7 @@ def count(f):
     def counted(*args):
         counted.call += 1
         return f(*args)
+
     counted.call = 0
     return counted
 
@@ -370,6 +392,7 @@ def count_frames(f):
 @count
 def divide(k, n):
     return n % k == 0
+
 
 def factor_slow(n):
     total = 0
@@ -397,12 +420,14 @@ def fib(n):
     else:
         return fib(n - 2) + fib(n - 1)
 
+
 @count
-def exp(b ,n):
+def exp(b, n):
     if n == 0:
         return 1
     else:
         return b * exp(b, n - 1)
+
 
 @count
 def exp_better(b, n):
@@ -412,6 +437,7 @@ def exp_better(b, n):
         return b * exp_better(b, n - 1)
     else:
         return square(exp_better(b, n / 2))
+
 
 # set
 
@@ -470,7 +496,6 @@ def intersect_set(set1, set2):
     #     return intersect_set(set1, set2.rest)
 
 
-
 def union_set(set1, set2):
     """
     >>> s = Link(1, Link(2, Link(3)))
@@ -487,7 +512,6 @@ def union_set(set1, set2):
     #     return set1
     # else:
     #     return union_set(adjoin_set(set1, set2.value), set2.rest)
-
 
 
 # BinaryTree
@@ -545,6 +569,7 @@ class BinaryTree(Tree):
         else:
             return self.left.set_contains(v)
 
+
 def set_binary_contains(s, v):
     if s.is_empty:
         return False
@@ -568,11 +593,12 @@ def adjoin_binary_set(s, v):
 
 
 t = BinaryTree(3, BinaryTree(1),
-                  BinaryTree(7, BinaryTree(5),
-                                BinaryTree(9, BinaryTree.empty,
-                                              BinaryTree(11))))
+               BinaryTree(7, BinaryTree(5),
+                          BinaryTree(9, BinaryTree.empty,
+                                     BinaryTree(11))))
 
 abcde = {'a': '.-', 'b': '-...', 'c': '-.-', 'd': '-..', 'e': '.'}
+
 
 def morse(code):
     root = Tree(None)
@@ -589,7 +615,6 @@ def morse(code):
         tree.branches.append(Tree(letter))
 
 
-
 def decode(signals, tree):
     """
     >>> t = morse(abcde)
@@ -601,3 +626,129 @@ def decode(signals, tree):
     leaves = [b for b in tree.braches if b.is_leaf()]
     assert len(leaves) == 1
     return leaves[0].entry
+
+
+def invert_safe(x):
+    try:
+        y = 1 / x
+        return y
+    except ZeroDivisionError as exc:
+        print(str(exc))
+        return 0
+
+
+mul = lambda a, b: a * b
+
+
+def our_reduce(f, s, initial):
+    if not s:
+        return initial
+    else:
+        return our_reduce(f, s[1:], f(initial, s[0]))
+
+
+from operator import truediv
+
+
+def divide_all(n, ds):
+    try:
+        return our_reduce(truediv, ds, n)
+    except ZeroDivisionError:
+        return float('inf')
+
+
+#############################
+
+class MyRange:
+    def __init__(self, start, end):
+        self.start = start
+        self.end = end
+
+    def __len__(self):
+        return max(0, self.end - self.start)
+
+    def __getitem__(self, index):
+        if index >= len(self):
+            raise IndexError
+        elif index < 0:
+            return self[len(self) + index]
+        else:
+            return self.start + index
+
+    def __repr__(self):
+        return 'Range({0}, {1})'.format(self.start, self.end)
+
+    def __iter__(self):
+        return RangeIter(self.start, self.end)
+
+
+class RangeIter:
+    def __init__(self, start, end):
+        self.next = start
+        self.end = end
+
+    def __next__(self):
+        if self.next >= self.end:
+            raise StopIteration
+        else:
+            result = self.next
+            self.next += 1
+            return result
+
+
+def next_letter(letter):
+    return chr(ord(letter) + 1)
+
+
+class Letters:
+    @staticmethod
+    def letter_generator(letter, end_letter):
+        while letter < end_letter:
+            yield letter
+            letter = next_letter(letter)
+
+    def __init__(self, start='a', end='{'):
+        self.start = start
+        self.end = end
+
+    def __len__(self):
+        return max(0, ord(self.end) - ord(self.start))
+
+    def __getitem__(self, index):
+        if index >= len(self):
+            raise IndexError
+        elif index < 0:
+            return self[len(self) + index]
+        else:
+            return chr(ord(self.start) + index)
+
+    def __repr__(self):
+        return 'Letters({0}, {1})'.format(self.start, self.end)
+
+    def __iter__(self):
+        return Letters.letter_generator(self.start, self.end)
+
+
+##############
+class FibIter:
+    def __init__(self):
+        self._next = 0
+        self._addend = 1
+
+    def __next__(self):
+        result = self._next
+        self._next, self._addend = self._addend, self._addend + self._nexttt
+        return result
+
+    @property
+    def __iter__(self):
+        return self
+
+def tessss(start, end):
+    while start < end:
+        yield start
+        start += 1
+        yield 3
+a = tessss(1, 22)
+print(type(a))
+for i in a: print(i)

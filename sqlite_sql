@@ -1,0 +1,113 @@
+create table dogs as
+    select "abraham" as name, "long" as fur union
+    select "barack", "short" union
+    select "clinton", "long" union
+    select "delano", "long" union
+    select "eisenhower", "short" union
+    select "fillmore", "curly" union
+    select "grover", "short" union
+    select "herbert", "curly";
+
+select a.child as first, b.child as second
+    from parents as a, parents as b
+    where a.parents = b.parents and a.child < b.child;
+
+CREATE table grandparents as
+    select a.parent as grandog, b.child as grandup from parents as a, parents as b
+    where a.child = b.parent;
+
+select grandog from grandparents, dogs as c, dogs as d
+    where c.fur = d.fur and c.name = grandog and d.name = grandup;
+
+create table cities as
+  select 38 as latitude, 122 as longitude, "Berkeley" as name union
+  select 42,              71,              "Cambridge"        union
+  select 45,              93,              "Minneapolis"      union
+  select 33,             117,              "San Diego"        union
+  select 26,              80,              "Miami"            union
+  select 90,               0,              "North Pole";
+
+create table cold as
+   select * from cities where latitude>=34
+
+create table distances as
+    select a.name as first, b.name as second,
+    60 * (b.latitude - a.latitude) as distance
+    from cities as a, cities as b
+    where distance > 0;
+
+create table phrase as select "hello, world" as s;
+
+select substr(s, 4, 2) || substr(s, instr(s, " ")+1, 1) from phrase;
+
+create table animals as
+    select "dog" as phrase union
+    select "cat" union
+    select "bird";
+
+select subject.phrase || " chased " || object.phrase
+    from animals as subject, animals as object
+    where subject.phrase <> object.phrase;
+
+create table ands as
+    select subject.phrase || " and " || object.phrase as phrase
+    from animals as subject, animals as object
+    where subject.phrase <> object.phrase;
+
+with
+    best(dog) as (
+        select "eisenhower" union
+        select "barack"
+    )
+select parent from parents, best where child = dog;
+
+create table odds as
+    with
+    odds(n) as (
+    select 1 union
+    select n+2 from odds where n<15
+    )
+    select n from odds;
+
+with
+    compounds(phrase, n) as (
+        select phrase, 1 from animals union
+        select subject.phrase || " that chased " || object.phrase, n+1
+        from compounds as subject, animals as object
+        where subject.phrase != object.phrase and n<2
+    )
+select s.phrase || " chased " || o.phrase
+from compounds as s, animals as o;
+
+create table pairs as
+    with
+        i(n) as (
+        select 1 union
+        select n+1 from i where n<50
+      )
+      select a.n as x, b.n as y from i as a, i as b where a.n <= b.n;
+
+create table triples as
+    with
+        i(n) as (
+            select 1 union
+            select n+1 from i where n < 50
+        )
+    select a.n as x, b.n as y, c.n as z from i as a, i as b, i as c
+    where a.n * a.n + b.n * b.n = c.n * c.n and a.n < b.n;
+
+create table fib as
+    with
+        i(previous, current) as (
+            select 0, 1 union
+            select current, previous+current from i where current <= 13
+   )
+   select previous from i
+
+create table animal as
+  select "dog" as kind, 4 as legs, 20 as weight union
+  select "cat"        , 4        , 10           union
+  select "ferret"     , 4        , 10           union
+  select "parrot"     , 2        , 6            union
+  select "penguin"    , 2        , 10           union
+  select "t-rex"      , 2        , 12000;
